@@ -1,6 +1,6 @@
 const inquirer = require('inquirer');
-const SVG = require('svg.js');
 const fs = require('fs');
+const { Triangle, Circle, Square } = require('./lib/shapes');
 
 async function getUserInput() {
   const userInput = await inquirer.prompt([
@@ -12,6 +12,7 @@ async function getUserInput() {
     {
       name: 'textColor',
       message: 'Enter text color (keyword or hex):',
+      validate: input => /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$|^(red|blue|green)$/i.test(input),
     },
     {
       name: 'shape',
@@ -22,6 +23,7 @@ async function getUserInput() {
     {
       name: 'shapeColor',
       message: 'Enter shape color (keyword or hex):',
+      validate: input => /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$|^(red|blue|green)$/i.test(input),
     },
   ]);
 
@@ -31,31 +33,33 @@ async function getUserInput() {
 function generateSVG(userInput) {
   const width = 300;
   const height = 200;
+  let shape;
 
-  const draw = SVG()
-    .size(width, height)
-    .addTo('#svg-container');
-
-  let shapeElement;
-
-  if (userInput.shape === 'circle') {
-    shapeElement = draw.circle(100).center(width / 2, height / 2);
-  } else if (userInput.shape === 'triangle') {
-    shapeElement = draw.polygon('0,100 50,0 100,100').center(width / 2, height / 2);
-  } else if (userInput.shape === 'square') {
-    shapeElement = draw.rect(100, 100).center(width / 2, height / 2);
+  switch (userInput.shape) {
+    case 'circle':
+      shape = new Circle();
+      break;
+    case 'triangle':
+      shape = new Triangle();
+      break;
+    case 'square':
+      shape = new Square();
+      break;
+    default:
+      console.log('Invalid shape selection');
+      return;
   }
 
-  shapeElement.fill(userInput.shapeColor);
+  shape.setColor(userInput.shapeColor);
 
-  draw.text(userInput.text)
-    .fill(userInput.textColor)
-    .center(width / 2, height / 2)
-    .font({ size: 20, anchor: 'middle' });
+  const svgString = `
+    <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+      ${shape.render()}
+      <text x="${width / 2}" y="${height / 2}" fill="${userInput.textColor}" text-anchor="middle" font-size="20">${userInput.text}</text>
+    </svg>
+  `;
 
-  const svgString = draw.svg();
   fs.writeFileSync('logo.svg', svgString);
-
   console.log('Generated logo.svg');
 }
 
