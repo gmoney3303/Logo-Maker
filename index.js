@@ -11,8 +11,7 @@ async function getUserInput() {
     },
     {
       name: 'textColor',
-      message: 'Enter text color (keyword or hex):',
-      validate: input => /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$|^(red|blue|green)$/i.test(input),
+      message: 'Enter text color (keyword or hex):', 
     },
     {
       name: 'shape',
@@ -23,7 +22,6 @@ async function getUserInput() {
     {
       name: 'shapeColor',
       message: 'Enter shape color (keyword or hex):',
-      validate: input => /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$|^(red|blue|green)$/i.test(input),
     },
   ]);
 
